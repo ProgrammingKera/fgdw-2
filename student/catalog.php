@@ -250,9 +250,9 @@ $totalBooks = $totalBooksResult->fetch_assoc()['total'];
                <div class="sem-box">
     <i class="fas fa-desktop"></i><h3>Semester 1</h3>
     <div class="sub-links">
-        <a href="ebooks.php?type=pastpapers&category=BS IT-1">Past Papers</a><br>
-<a href="ebooks.php?type=outlines&category=BS IT-1">Outlines</a><br>
-<a href="ebooks.php?type=ebooks&category=BS IT-1" >E-Books</a>
+        <p><a href="ebooks.php?type=pastpapers&category=BS IT-1">Past Papers</a></p>
+        <p><a href="ebooks.php?type=outlines&category=BS IT-1">Outlines</a></p>
+        <p><a href="ebooks.php?type=ebooks&category=BS IT-1">E-Books</a></p>
 
     </div>
 </div>
@@ -459,7 +459,7 @@ $totalBooks = $totalBooksResult->fetch_assoc()['total'];
                     <div class="sub-links">
                         <p><a href="ebooks.php?type=ebooks&category=BS ENG-8">Ebooks</a></p>
                 <p><a href="ebooks.php?type=outlines&category=BS ENG-8">Outlines</a></p>
-                <p><a href="ebooks.php?type=pastpapers&category=BS ENG-1">Past Papers</a></p>
+                <p><a href="ebooks.php?type=pastpapers&category=BS ENG-8">Past Papers</a></p>
                     </div>
                 </div>
 
@@ -474,17 +474,17 @@ $totalBooks = $totalBooksResult->fetch_assoc()['total'];
                 <div class="sem-box">
                     <i class="fas fa-pencil-alt"></i><h3>1 year</h3>
                     <div class="sub-links">
-                        <p><a href="#">Ebooks</a></p>
-                        <p><a href="#">Outlines</a></p>
-                        <p><a href="#">Past Papers</a></p>
+                        <p><a href="ebooks.php?type=ebooks&category=1st Year Pre Engineering">Ebooks</a></p>
+                        <p><a href="ebooks.php?type=outlines&category=1st Year Pre Engineering">Outlines</a></p>
+                        <p><a href="ebooks.php?type=pastpapers&category=1st Year Pre Engineering">Past Papers</a></p>
                     </div>
                 </div>
                 <div class="sem-box">
                     <i class="fas fa-calculator"></i><h3>2nd year</h3>
                     <div class="sub-links">
-                        <p><a href="#">Ebooks</a></p>
-                        <p><a href="#">Outlines</a></p>
-                        <p><a href="#">Past Papers</a></p>
+                        <p><a href="ebooks.php?type=ebooks&category=2nd Year Pre Engineering">Ebooks</a></p>
+                        <p><a href="ebooks.php?type=outlines&category=2nd Year Pre Engineering">Outlines</a></p>
+                        <p><a href="ebooks.php?type=pastpapers&category=2nd Year Pre Engineering">Past Papers</a></p>
                     </div>
                 </div>
             </div>
@@ -496,24 +496,6 @@ $totalBooks = $totalBooksResult->fetch_assoc()['total'];
 </div>
 
     </div>
-    <?php if (!empty($ebooks)): ?>
-    <div class="container mt-5">
-        <h3>Showing <?= htmlspecialchars($type) ?> for <?= htmlspecialchars($category) ?></h3>
-        <ul class="list-group">
-            <?php foreach ($ebooks as $book): ?>
-                <li class="list-group-item">
-                    <strong><?= htmlspecialchars($book['title']) ?></strong>
-                    <br>
-                    <a href="uploads/ebooks/<?= htmlspecialchars($book['file']) ?>" target="_blank">Download</a>
-                </li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-<?php elseif ($category && $type): ?>
-    <div class="container mt-5">
-        <p>No records found for <?= htmlspecialchars($type) ?> in <?= htmlspecialchars($semester) ?></p>
-    </div>
-<?php endif; ?>
 
 
     <script>

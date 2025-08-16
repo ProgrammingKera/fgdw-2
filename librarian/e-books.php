@@ -226,7 +226,14 @@ while ($row = $result->fetch_assoc()) {
                         $fileType = strtolower($ebook['file_type']);
                         $iconClass = '';
                         $iconColor = '';
-                        
+
+                        if (!empty($ebook['type'])): ?>
+                            <div class="ebook-type">
+                                <i class="fas fa-bookmark"></i>
+                                <span><?php echo htmlspecialchars($ebook['type']); ?></span>
+                            </div>
+                        <?php endif; 
+
                         switch ($fileType) {
                             case 'pdf':
                                 $iconClass = 'fas fa-file-pdf';
@@ -291,6 +298,7 @@ while ($row = $result->fetch_assoc()) {
         <div class="alert alert-warning">No e-books found.</div>
     <?php endif; ?>
 </div>
+
 
 <!-- Upload E-Book Modal -->
 <div class="modal-overlay" id="uploadEbookModal">
@@ -486,6 +494,20 @@ while ($row = $result->fetch_assoc()) {
 }
 
 .ebook-category i {
+    font-size: 0.8em;
+}
+
+.ebook-type {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    color: var(--warning-color);
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.ebook-type i {
     font-size: 0.8em;
 }
 

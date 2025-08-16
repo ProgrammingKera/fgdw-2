@@ -10,6 +10,7 @@ if ($_SESSION['role'] != 'student' && $_SESSION['role'] != 'faculty') {
 // Handle search and filtering
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $type = isset($_GET['type']) ? trim($_GET['type']) : '';
+$category = isset($_GET['category']) ? trim($_GET['category']) : '';
 
 // Get all categories
 $categories = [];
@@ -39,6 +40,12 @@ if (!empty($type)) {
     $types .= "s";
 }
 
+if (!empty($category)) {
+    $sql .= " AND e.category = ?";
+    $params[] = $category;
+    $types .= "s";
+}
+
 $sql .= " ORDER BY e.created_at DESC";
 
 // Execute search
@@ -55,37 +62,82 @@ while ($row = $result->fetch_assoc()) {
 ?>
 
 <div class="container">
-    <h1 class="page-title">E-Books Library</h1>
+    <h1 class="page-title">
+        <?php if (!empty($category) && !empty($type)): ?>
+            <?php echo htmlspecialchars($category); ?> - <?php echo ucfirst(htmlspecialchars($type)); ?>
+        <?php else: ?>
+            E-Books Library
+        <?php endif; ?>
+    </h1>
+
+    <?php if (!empty($category) && !empty($type)): ?>
+        <div class="breadcrumb-nav">
+            <a href="catalog.php" class="breadcrumb-link">
+                <i class="fas fa-home"></i> Catalog
+            </a>
+            <span class="breadcrumb-separator">></span>
+            <a href="ebooks.php" class="breadcrumb-link">E-Books</a>
+            <span class="breadcrumb-separator">></span>
+            <span class="breadcrumb-current"><?php echo htmlspecialchars($category); ?> - <?php echo ucfirst(htmlspecialchars($type)); ?></span>
+        </div>
+    <?php endif; ?>
 
     <div class="search-section mb-4">
         <form action="" method="GET" class="search-form">
+            <?php if (!empty($category)): ?>
+                <input type="hidden" name="category" value="<?php echo htmlspecialchars($category); ?>">
+            <?php endif; ?>
+            <?php if (!empty($type)): ?>
+                <input type="hidden" name="type" value="<?php echo htmlspecialchars($type); ?>">
+            <?php endif; ?>
+            
             <div class="search-row">
                 <div class="search-input-group">
                     <input type="text" name="search" placeholder="Search e-books by title or author..."
                            class="form-control search-input" value="<?php echo htmlspecialchars($search); ?>">
                 </div>
 
-                <div class="search-select-group">
-                    <select name="type" class="form-control type-select">
-    <option value="">All Types</option>
-    <?php 
-    // yahan types fix kar do
-    $types = ['ebooks', 'outlines', 'pastpapers']; 
-    foreach ($types as $t): ?>
-        <option value="<?php echo htmlspecialchars($t); ?>" <?php echo $type == $t ? 'selected' : ''; ?>>
-            <?php echo ucfirst(htmlspecialchars($t)); ?>
-        </option>
-    <?php endforeach; ?>
-</select>
-                </div>
+                <?php if (empty($category) && empty($type)): ?>
+                    <div class="search-select-group">
+                        <select name="type" class="form-control type-select">
+                            <option value="">All Types</option>
+                            <?php 
+                            $types = ['ebooks', 'outlines', 'pastpapers']; 
+                            foreach ($types as $t): ?>
+                                <option value="<?php echo htmlspecialchars($t); ?>" <?php echo $type == $t ? 'selected' : ''; ?>>
+                                    <?php echo ucfirst(htmlspecialchars($t)); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="search-select-group">
+                        <select name="category" class="form-control type-select">
+                            <option value="">All Categories</option>
+                            <?php 
+                            $categoryResult = $conn->query("SELECT DISTINCT category FROM ebooks WHERE category != '' ORDER BY category");
+                            if ($categoryResult) {
+                                while ($row = $categoryResult->fetch_assoc()) {
+                                    $selected = ($category == $row['category']) ? 'selected' : '';
+                                    echo "<option value='" . htmlspecialchars($row['category']) . "' $selected>" . htmlspecialchars($row['category']) . "</option>";
+                                }
+                            }
+                            ?>
+                        </select>
+                    </div>
+                <?php endif; ?>
 
                 <div class="search-button-group">
                     <button type="submit" class="btn btn-primary search-btn">
                         <i class="fas fa-search"></i> Search
                     </button>
-                    <?php if (!empty($search) || !empty($type)): ?>
+                    <?php if (!empty($search) || (!empty($type) && empty($category)) || (!empty($category) && empty($type))): ?>
                         <a href="ebooks.php" class="btn btn-secondary clear-btn">
                             <i class="fas fa-times"></i> Clear
+                        </a>
+                    <?php elseif (!empty($search) && !empty($category) && !empty($type)): ?>
+                        <a href="ebooks.php?category=<?php echo urlencode($category); ?>&type=<?php echo urlencode($type); ?>" class="btn btn-secondary clear-btn">
+                            <i class="fas fa-times"></i> Clear Search
                         </a>
                     <?php endif; ?>
                 </div>
@@ -143,6 +195,13 @@ while ($row = $result->fetch_assoc()) {
                             </div>
                         <?php endif; ?>
 
+                        <?php if (!empty($ebook['category'])): ?>
+                            <div class="ebook-category">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span><?php echo htmlspecialchars($ebook['category']); ?></span>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="ebook-meta">
                             <div class="meta-item">
                                 <i class="fas fa-hdd"></i>
@@ -184,13 +243,13 @@ while ($row = $result->fetch_assoc()) {
             <i class="fas fa-file-pdf fa-3x text-muted mb-3"></i>
             <h3>No E-Books Found</h3>
             <p class="text-muted">
-                <?php if (!empty($search) || !empty($type)): ?>
+                <?php if (!empty($search) || !empty($type) || !empty($category)): ?>
                     No e-books match your search criteria. Try adjusting your search terms.
                 <?php else: ?>
                     No e-books are currently available in the library.
                 <?php endif; ?>
             </p>
-            <?php if (!empty($search) || !empty($type)): ?>
+            <?php if (!empty($search) || !empty($type) || !empty($category)): ?>
                 <a href="ebooks.php" class="btn btn-primary">
                     <i class="fas fa-list"></i> View All E-Books
                 </a>
@@ -368,6 +427,46 @@ while ($row = $result->fetch_assoc()) {
     margin-bottom: 10px;
     color: var(--primary-color);
     font-size: 0.85em;
+}
+
+.ebook-category {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    color: var(--success-color);
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.breadcrumb-nav {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.breadcrumb-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.breadcrumb-link:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+.breadcrumb-separator {
+    margin: 0 10px;
+    color: var(--text-light);
+}
+
+.breadcrumb-current {
+    color: var(--text-color);
+    font-weight: 600;
 }
 
 .ebook-meta {

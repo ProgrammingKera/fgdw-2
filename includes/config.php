@@ -82,10 +82,12 @@ $sql = "CREATE TABLE IF NOT EXISTS ebooks (
     title VARCHAR(255) NOT NULL,
     author VARCHAR(100) NOT NULL,
     category VARCHAR(50),
+    type VARCHAR(50),
     file_path VARCHAR(255) NOT NULL,
     file_size VARCHAR(20),
     file_type VARCHAR(20),
     description TEXT,
+    cover_image VARCHAR(255),
     uploaded_by INT(11),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
@@ -93,6 +95,14 @@ $sql = "CREATE TABLE IF NOT EXISTS ebooks (
 if ($conn->query($sql) !== TRUE) {
     die("Error creating ebooks table: " . $conn->error);
 }
+
+// Add type column if it doesn't exist
+$sql = "ALTER TABLE ebooks ADD COLUMN IF NOT EXISTS type VARCHAR(50) AFTER category";
+$conn->query($sql);
+
+// Add cover_image column if it doesn't exist  
+$sql = "ALTER TABLE ebooks ADD COLUMN IF NOT EXISTS cover_image VARCHAR(255) AFTER description";
+$conn->query($sql);
 
 // Create Issued Books table
 $sql = "CREATE TABLE IF NOT EXISTS issued_books (

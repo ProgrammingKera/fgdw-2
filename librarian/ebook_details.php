@@ -16,11 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = trim($_POST['title']);
     $author = trim($_POST['author']);
     $category = trim($_POST['category']);
+    $type = trim($_POST['type']);
     $description = trim($_POST['description']);
     
     // Basic validation
-    if (empty($title) || empty($author)) {
-        $message = "Title and author are required fields.";
+    if (empty($title) || empty($author) || empty($type)) {
+        $message = "Title, author, and type are required fields.";
         $messageType = "danger";
     } else {
         // Handle cover image upload
@@ -54,11 +55,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Update e-book record
         $stmt = $conn->prepare("
             UPDATE ebooks 
-            SET title = ?, author = ?, category = ?, description = ?, cover_image = ?
+            SET title = ?, author = ?, category = ?, type = ?, description = ?, cover_image = ?
             WHERE id = ?
         ");
         
-        $stmt->bind_param("sssssi", $title, $author, $category, $description, $coverImage, $ebookId);
+        $stmt->bind_param("ssssssi", $title, $author, $category, $type, $description, $coverImage, $ebookId);
         
         if ($stmt->execute()) {
             $message = "E-book updated successfully.";
@@ -193,8 +194,37 @@ $ebook = $result->fetch_assoc();
 
             <div class="form-group">
                 <label for="category">Category</label>
-                <input type="text" id="category" name="category" class="form-control"
-                       value="<?php echo htmlspecialchars($ebook['category']); ?>">
+                <select id="category" name="category" class="form-control" required>
+                    <option value="">Select category</option>
+                    <?php 
+                    $categories = [
+                        'BS IT-1', 'BS IT-2', 'BS IT-3', 'BS IT-4', 'BS IT-5', 'BS IT-6', 'BS IT-7', 'BS IT-8',
+                        'BS ENG-1', 'BS ENG-2', 'BS ENG-3', 'BS ENG-4', 'BS ENG-5', 'BS ENG-6', 'BS ENG-7', 'BS ENG-8',
+                        'BS HPE-1', 'BS HPE-2', 'BS HPE-3', 'BS HPE-4', 'BS HPE-5', 'BS HPE-6', 'BS HPE-7', 'BS HPE-8',
+                        '1st Year Pre Engineering', '2nd Year Pre Engineering',
+                        '1st Year Pre Medical', '2nd Year Pre Medical',
+                        '1st Year Arts', '2nd Year Arts', '1st Year ICS', '2nd Year ICS'
+                    ];
+                    foreach ($categories as $cat) {
+                        $selected = ($ebook['category'] == $cat) ? 'selected' : '';
+                        echo "<option value=\"$cat\" $selected>$cat</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="type">Type</label>
+                <select id="type" name="type" class="form-control" required>
+                    <option value="">Select Type</option>
+                    <?php 
+                    $types = ['pastpapers', 'ebooks', 'outlines'];
+                    foreach ($types as $t) {
+                        $selected = ($ebook['type'] == $t) ? 'selected' : '';
+                        echo "<option value=\"$t\" $selected>" . ucfirst($t) . "</option>";
+                    }
+                    ?>
+                </select>
             </div>
 
             <div class="form-group">
